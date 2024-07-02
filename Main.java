@@ -3,10 +3,10 @@ import java.util.Scanner; // Importing Scanner class for taking user inputs
 
 public class Main {
     // Database driver and connection details
-    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver"; 
+    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://localhost/Bank_database";
-    static final String USER = "username";
-    static final String PASS = "password";
+    static final String USER = "mysqluser";
+    static final String PASS = "Atm125!@%";
 
     public static void main(String[] args) {
         Connection conn = null;
@@ -52,23 +52,40 @@ public class Main {
                             case 2:
                                 System.out.print("Enter withdrawal amount: ");
                                 double withdrawAmount = userInput.nextDouble();
-                                bankApp.withdrawAmount(conn, accNum, withdrawAmount); // Withdraw amount
-                                break;
+                                if (withdrawAmount <= 0) {
+                                    System.out.println("Please Enter positive Amount!");
+                                    break;
+                                } else {
+                                    bankApp.withdrawAmount(conn, accNum, withdrawAmount); // Withdraw amount
+                                    break;
+                                }
                             case 3:
                                 System.out.print("Enter deposit amount: ");
                                 double depositAmount = userInput.nextDouble();
-                                bankApp.depositAmount(conn, accNum, depositAmount); // Deposit amount
-                                break;
+                                if (depositAmount <= 0) {
+                                    System.out.println("Please Enter postive values!");
+                                    break;
+                                } else {
+                                    bankApp.depositAmount(conn, accNum, depositAmount); // Deposit amount
+                                    break;
+                                }
                             case 4:
                                 System.out.println("Please Enter recipeint Account Number:");
                                 int recipientAccNum = userInput.nextInt();
-                                if(!checkAccExistence(conn, accNum)){
+                                if (!checkAccExistence(conn, recipientAccNum)) {
                                     System.out.println("Account doesn't Exist in our Database");
+                                    break;
+                                } else {
+                                    System.out.println("Enter amount to transfer");
+                                    double amount = userInput.nextDouble();
+                                    if (amount <= 0) {
+                                        System.out.println("please Enter postive values!");
+                                        break;
+                                    } else {
+                                        bankApp.sendMoney(conn, accNum, recipientAccNum, amount); // Send money
+                                        break;
+                                    }
                                 }
-                                System.out.println("Enter amount to transfer");
-                                double amount = userInput.nextDouble();
-                                bankApp.sendMoney(conn, accNum, recipientAccNum, amount); // Send money
-                                break;
                             case 5:
                                 System.out.println("\n\t\t\t||-- Your Transaction History --||\n");
                                 bankApp.transactionHistory(conn, accNum); // View transaction history
@@ -78,7 +95,8 @@ public class Main {
                                 runprogramAgain = false; // Exit the program
                                 break;
                             default:
-                                System.out.println("Invalid choice: " + choice + ", please enter a valid choice!"); // Invalid choice
+                                System.out.println("Invalid choice: " + choice + ", please enter a valid choice!"); // Invalid
+                                                                                                                    // choice
                                 break;
                         }
                         if (!runprogramAgain) {
@@ -86,8 +104,8 @@ public class Main {
                         }
                     }
                 } else {
-                    System.out.println("\n\n\t||--Please enter valid Account No. and PIN!--||");
-                    break; // this will break the outer loop
+                    System.out.println("\n\n\t||--Scuccessfully exit thank you for using our service!--||");
+                    return; // this will break the outer loop
                 }
             }
         } catch (SQLException se) {
@@ -96,14 +114,17 @@ public class Main {
             e.printStackTrace(); // Print general exception
         } finally {
             try {
-                if (stmt != null) stmt.close(); // Close statement
+                if (stmt != null)
+                    stmt.close(); // Close statement
             } catch (SQLException se2) {
             }
             try {
-                if (conn != null) conn.close(); // Close connection
+                if (conn != null)
+                    conn.close(); // Close connection
             } catch (SQLException se) {
                 se.printStackTrace(); // Print SQL exception
             }
+            userInput.close();
         }
     }
 
@@ -117,17 +138,18 @@ public class Main {
             return rs.next(); // Return true if user exists, false otherwise
         }
     }
+
     // Method to check account existence
-    private static boolean checkAccExistence(Connection conn, int accNum) throws SQLException{
+    private static boolean checkAccExistence(Connection conn, int accNum) throws SQLException {
         String query = "SELECT COUNT(*) as count FROM UserInfo WHERE accNum = ?";
-        try(PreparedStatement pstmt = conn.prepareStatement(query)){
-                pstmt.setInt(1, accNum);
-                ResultSet rs = pstmt.executeQuery();
-                if(rs.next()){
-                    int count = rs.getInt("count");
-                    return count>0; // Return true if account exists, false otherwise
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, accNum);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt("count");
+                return count > 0; // Return true if account exists, false otherwise
             }
-        } 
+        }
         return false;
     }
 }
