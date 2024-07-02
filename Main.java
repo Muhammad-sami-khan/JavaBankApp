@@ -5,8 +5,8 @@ public class Main {
     // Database driver and connection details
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://localhost/Bank_database";
-    static final String USER = "mysqluser";
-    static final String PASS = "Atm125!@%";
+    static final String USER = "username";
+    static final String PASS = "password";
 
     public static void main(String[] args) {
         Connection conn = null;
